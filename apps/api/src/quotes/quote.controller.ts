@@ -7,7 +7,7 @@ export class QuoteController {
     constructor(
         private readonly quotes: QuoteService,
         private readonly ratecards: RatecardService,
-    ) {}
+    ) { }
 
     @Post('preview')
     preview(@Body() body: any) {
@@ -26,13 +26,13 @@ export class QuoteController {
     @Get(':id')
     byId(@Param('id') id: string) {
         const rec = this.quotes.get(id);
-        return rec ?? { ok:false, error:'not_found' };
+        return rec ?? { ok: false, error: 'not_found' };
     }
 
     @Get(':id/preview-newer')
     previewNewer(@Param('id') id: string) {
         const rec = this.quotes.get(id);
-        if (!rec) return { ok:false, error:'not_found' };
+        if (!rec) return { ok: false, error: 'not_found' };
         const latest = this.ratecards.latest().item;
         return this.quotes.preview(latest as any, rec.input);
     }

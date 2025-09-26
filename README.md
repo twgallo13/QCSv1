@@ -91,6 +91,7 @@ SAVE=$(curl -s -X POST http://localhost:4000/quotes \
 ID=$(echo "$SAVE" | sed -n 's/.*"id":"\([^" ]*\)".*/\1/p')
 curl -s "http://localhost:4000/quotes/$ID/preview-newer"
 ```
+
 ```
 
 ---
@@ -183,4 +184,4 @@ TBD (add MIT/Apache-2.0 or All Rights Reserved).
 
 ---
 
-_Last updated: Port separation (API now :4000)._ 
+_Last updated: Port separation (API now :4000)._

@@ -8,4 +8,4 @@ import { RatecardModule } from '../ratecards/ratecard.module';
     controllers: [QuoteController],
     providers: [QuoteService],
 })
-export class QuoteModule {}
+export class QuoteModule { }

@@ -7,4 +7,4 @@ import { RatecardService } from './ratecard.service';
     providers: [RatecardService],
     exports: [RatecardService],
 })
-export class RatecardModule {}
+export class RatecardModule { }
