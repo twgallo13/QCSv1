@@ -92,8 +92,6 @@ ID=$(echo "$SAVE" | sed -n 's/.*"id":"\([^" ]*\)".*/\1/p')
 curl -s "http://localhost:4000/quotes/$ID/preview-newer"
 ```
 
-```
-
 ---
 
 ## Core API Endpoints
