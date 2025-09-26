@@ -50,8 +50,8 @@ The script will:
 
 1. Enable corepack & ensure pnpm
 2. Install workspace dependencies (`pnpm -w install`)
-3. Start API (likely on 3000)
-4. Start Web (Next.js, often 3001)
+3. Start API (default :4000)
+4. Start Web (Next.js, default :3000)
 
 Manual alternative:
 
@@ -81,15 +81,16 @@ Add `apps/api/.env.example` with placeholder values (no secrets).
 
 ## Firebase Frontend Config
 
-```js
-export const firebaseConfig = {
-  apiKey: "AIzaSyDvahc2gJGmI08oxc5h6YOreeA1Rzgi_w4",
-  authDomain: "qcsv1-a4dc8.firebaseapp.com",
-  projectId: "qcsv1-a4dc8",
-  storageBucket: "qcsv1-a4dc8.appspot.com",
-  messagingSenderId: "589820284889",
-  appId: "1:589820284889:web:a7565495787f95c07b53c8"
-};
+```bash
+# API default port changed to 4000 to avoid clashing with Next.js dev server
+curl -s http://localhost:4000/health
+curl -s http://localhost:4000/ratecards
+SAVE=$(curl -s -X POST http://localhost:4000/quotes \
+  -H 'Content-Type: application/json' \
+  -d '{"rateCardId":"rc-launch","scopeInput":{"monthlyOrders":500,"averageOrderValueCents":6500,"averageUnitsPerOrder":2}}')
+ID=$(echo "$SAVE" | sed -n 's/.*"id":"\([^" ]*\)".*/\1/p')
+curl -s "http://localhost:4000/quotes/$ID/preview-newer"
+```
 ```
 
 ---
@@ -182,4 +183,4 @@ TBD (add MIT/Apache-2.0 or All Rights Reserved).
 
 ---
 
-_Last updated: README normalization commit._
+_Last updated: Port separation (API now :4000)._ 

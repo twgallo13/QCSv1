@@ -3,6 +3,9 @@ set -euo pipefail
 
 echo "== QCSv1 Dev Runner =="
 
+# Allow overriding API port (default 4000) to avoid collision with Next.js (3000)
+API_PORT="${API_PORT:-4000}"
+
 corepack enable >/dev/null 2>&1 || true
 if ! command -v pnpm >/dev/null 2>&1; then
   echo "Installing pnpm globally (fallback)...";
@@ -22,9 +25,9 @@ start_api() {
     (
       cd apps/api
       if command -v pnpm >/dev/null 2>&1; then
-        pnpm start:dev || pnpm start || pnpm run dev || npx ts-node src/main.ts || node dist/main.js || true
+        PORT="$API_PORT" pnpm start:dev || PORT="$API_PORT" pnpm start || PORT="$API_PORT" pnpm run dev || PORT="$API_PORT" npx ts-node src/main.ts || PORT="$API_PORT" node dist/main.js || true
       else
-        npm run start:dev || npm start || npx ts-node src/main.ts || node dist/main.js || true
+        PORT="$API_PORT" npm run start:dev || PORT="$API_PORT" npm start || PORT="$API_PORT" npx ts-node src/main.ts || PORT="$API_PORT" node dist/main.js || true
       fi
     ) &
   else
@@ -51,5 +54,5 @@ start_web() {
 start_api
 start_web
 
-echo "== Watching (check Ports tab for forwarded URLs) =="
+echo "== Watching (API :$API_PORT, check Ports tab for forwarded URLs) =="
 wait
