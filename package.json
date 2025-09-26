@@ -1,0 +1,13 @@
+{
+  "name": "qcsv1",
+  "private": true,
+  "scripts": {
+    "dev:api": "pnpm --filter ./apps/api dev",
+    "dev:web": "pnpm --filter ./apps/web dev",
+    "dev": "concurrently -n API,WEB \"pnpm dev:api\" \"pnpm dev:web\"",
+    "dev:all": "./dev.sh"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
