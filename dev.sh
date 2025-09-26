@@ -22,12 +22,34 @@ fi
 start_api() {
   if [ -d "apps/api" ]; then
     echo "[API] starting..."
+    # Ensure desired port is free before starting (prevents nested fallback spawning prod instance)
+    if lsof -ti tcp:"$API_PORT" >/dev/null 2>&1; then
+      echo "[API] freeing port $API_PORT (killing PIDs $(lsof -ti tcp:"$API_PORT" | tr '\n' ' '))"
+      lsof -ti tcp:"$API_PORT" | xargs -r kill -9 || true
+      # tiny delay to allow socket release
+      sleep 0.3
+    fi
     (
       cd apps/api
       if command -v pnpm >/dev/null 2>&1; then
-        PORT="$API_PORT" pnpm start:dev || PORT="$API_PORT" pnpm start || PORT="$API_PORT" pnpm run dev || PORT="$API_PORT" npx ts-node src/main.ts || PORT="$API_PORT" node dist/main.js || true
+        # Prefer watch mode; only fall back to plain start if script missing; avoid cascading into prod binary unless both fail for non-port reasons
+        if PORT="$API_PORT" pnpm start:dev; then
+          true
+        elif PORT="$API_PORT" pnpm start; then
+          true
+        else
+          echo "[API] watch/start scripts failed; attempting ts-node fallback"
+          PORT="$API_PORT" npx ts-node src/main.ts || (echo "[API] final fallback to built dist" && PORT="$API_PORT" node dist/main.js || true)
+        fi
       else
-        PORT="$API_PORT" npm run start:dev || PORT="$API_PORT" npm start || PORT="$API_PORT" npx ts-node src/main.ts || PORT="$API_PORT" node dist/main.js || true
+        if PORT="$API_PORT" npm run start:dev; then
+          true
+        elif PORT="$API_PORT" npm start; then
+          true
+        else
+          echo "[API] watch/start scripts failed; attempting ts-node fallback"
+          PORT="$API_PORT" npx ts-node src/main.ts || (echo "[API] final fallback to built dist" && PORT="$API_PORT" node dist/main.js || true)
+        fi
       fi
     ) &
   else

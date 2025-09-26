@@ -11,16 +11,16 @@ export class QuoteController {
 
     @Post('preview')
     preview(@Body() body: any) {
-        const { rateCardId, scopeInput } = body || {};
+        const { rateCardId, scope, scopeInput } = body || {};
         const rc = this.ratecards.getById(rateCardId) || this.ratecards.latest().item;
-        return this.quotes.preview(rc as any, scopeInput || {});
+        return this.quotes.preview(rc as any, scope || scopeInput || {});
     }
 
     @Post()
     create(@Body() body: any) {
-        const { rateCardId, scopeInput } = body || {};
+        const { rateCardId, scope, scopeInput } = body || {};
         const rc = this.ratecards.getById(rateCardId) || this.ratecards.latest().item;
-        return this.quotes.create(rc as any, scopeInput || {});
+        return this.quotes.create(rc as any, scope || scopeInput || {});
     }
 
     @Get(':id')
