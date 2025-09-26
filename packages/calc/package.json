@@ -1,0 +1,6 @@
+{
+  "name": "qcsv1-calc",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js"
+}
