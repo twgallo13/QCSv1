@@ -1,0 +1,20 @@
+# package managers
+node_modules/
+.pnpm-store/
+
+# build outputs
+dist/
+.next/
+.turbo/
+
+# app-level outputs
+apps/*/node_modules/
+apps/*/dist/
+apps/*/.next/
+apps/*/.turbo/
+
+# env & logs
+.env
+apps/*/.env*
+*.log
+/tmp/
