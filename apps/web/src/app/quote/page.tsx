@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
 
@@ -13,6 +14,7 @@ function dollars(cents: number | undefined) {
 }
 
 export default function QuotePage() {
+  const router = useRouter();
   const [monthlyOrders, setMonthlyOrders] = useState<number>(500);
   const [aov, setAov] = useState<number>(10000);
   const [units, setUnits] = useState<number>(1);
@@ -43,6 +45,16 @@ export default function QuotePage() {
     setMix(copy);
   };
 
+  const requestBody = {
+    rateCardId: "rc-launch",
+    scopeInput: {
+      monthlyOrders: Number(monthlyOrders),
+      averageOrderValueCents: Number(aov),
+      averageUnitsPerOrder: Number(units),
+      shippingSizeMix: mix,
+    },
+  };
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErr(""); setTotals(null);
@@ -52,15 +64,7 @@ export default function QuotePage() {
       const res = await fetch(`${API_BASE}/quotes/preview`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rateCardId: "rc-launch",
-          scopeInput: {
-            monthlyOrders: Number(monthlyOrders),
-            averageOrderValueCents: Number(aov),
-            averageUnitsPerOrder: Number(units),
-            shippingSizeMix: mix,
-          },
-        }),
+        body: JSON.stringify(requestBody),
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
@@ -72,6 +76,21 @@ export default function QuotePage() {
       setErr(e?.message || "Failed");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function onSave() {
+    try {
+      const res = await fetch(`${API_BASE}/quotes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+      if (!res.ok) throw new Error(`Save failed (${res.status})`);
+      const data = await res.json(); // expect { id, ... }
+      if (data?.id) router.push(`/quotes/${data.id}`);
+    } catch (e: any) {
+      setErr(e.message || "Save failed");
     }
   }
 
@@ -137,6 +156,12 @@ export default function QuotePage() {
             ))}
             </tbody>
           </table>
+          <div style={{ padding: "12px", background: "#f8f9fa", borderTop: "1px solid #eee", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <button onClick={onSave} style={{ padding: "8px 16px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}>
+              Save Quote
+            </button>
+            <a href="/quotes" style={{ fontSize: "14px", color: "#666" }}>View all quotes</a>
+          </div>
         </div>
       )}
     </div>
