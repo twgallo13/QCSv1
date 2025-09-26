@@ -53,7 +53,6 @@ The script will:
 3. Start API (likely on 3000)
 4. Start Web (Next.js, often 3001)
 
-
 Manual alternative:
 
 ```bash
@@ -61,7 +60,6 @@ pnpm install
 pnpm --filter apps/api start:dev
 pnpm --filter apps/web dev
 ```
-
 
 Once running, open the forwarded web port → `/quote`.
 
@@ -94,7 +92,6 @@ export const firebaseConfig = {
 };
 ```
 
-
 ---
 
 ## Core API Endpoints
@@ -118,7 +115,6 @@ export const firebaseConfig = {
 4. User clicks “Preview with Newer Rates” → calls `/quotes/:id/preview-newer`.
 5. UI displays Saved vs Newer vs Diff.
 
-
 ---
 
 ## Dev Script (`dev.sh`)
@@ -141,7 +137,6 @@ ID=$(echo "$SAVE" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
 curl -s "http://localhost:3000/quotes/$ID/preview-newer"
 ```
 
-
 ---
 
 ## Deployment (Outline)
@@ -154,14 +149,12 @@ firebase login
 firebase deploy --only hosting
 ```
 
-
 ### API (Cloud Run)
 
 1. docker build -t REGION-docker.pkg.dev/PROJECT/REPO/qcsv1-api:TAG .
 2. docker push REGION-docker.pkg.dev/PROJECT/REPO/qcsv1-api:TAG
 3. gcloud run deploy qcsv1-api --image REGION-docker.pkg.dev/PROJECT/REPO/qcsv1-api:TAG --region=REGION --set-env-vars ...
 4. (Optional) Add GitHub Action for CI/CD.
-
 
 ---
 
@@ -170,7 +163,6 @@ firebase deploy --only hosting
 - Never commit raw service account private keys.
 - Restrict Firestore rules to authenticated single admin (current scope).
 - Use principle of least privilege for any CI/CD service accounts.
-
 
 ---
 
@@ -181,7 +173,6 @@ firebase deploy --only hosting
 - Role-based access (future multi-user)
 - Quote PDF export
 - Rate card version history UI
-
 
 ---
 
