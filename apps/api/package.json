@@ -7,6 +7,9 @@
     "start": "node src/index.js"
   },
   "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "cors": "^2.8.5",
     "express": "^4.19.2"
   }
 }

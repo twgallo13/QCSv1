@@ -1,9 +1,18 @@
 import express from "express";
+import cors from "cors";
 import { rateCards, quotes } from "./data.js";
 import { quoteBreakdown } from "../../../packages/calc/src/index.js";
+import { validateRequest, PreviewDto } from "./dto.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;  // keep 3000 since your Codespace shows port 3000 running
+
+// Enable CORS
+app.use(cors({
+  origin: [/\.app\.github\.dev$/, 'http://localhost:3001'],
+  credentials: true,
+}));
+
 app.use(express.json());
 
 // --- Endpoints ---
@@ -29,18 +38,18 @@ app.get("/ratecards/latest", (_req, res) => {
 });
 
 // Preview quote using real calc engine
-app.post("/quotes/preview", (req, res) => {
-  const { rateCardId, scopeInput } = req.body || {};
+app.post("/quotes/preview", validateRequest(PreviewDto), (req, res) => {
+  const { rateCardId, scopeInput } = req.validatedBody;
   const rateCard = rateCards.find(r => r.id === rateCardId) || rateCards[0];
-  const result = quoteBreakdown(scopeInput || {}, rateCard);
+  const result = quoteBreakdown(scopeInput, rateCard);
   return res.json(result);
 });
 
 // Save version-locked quote
-app.post("/quotes", (req, res) => {
-  const { rateCardId, scopeInput } = req.body || {};
+app.post("/quotes", validateRequest(PreviewDto), (req, res) => {
+  const { rateCardId, scopeInput } = req.validatedBody;
   const rateCard = rateCards.find(r => r.id === rateCardId) || rateCards[0];
-  const result = quoteBreakdown(scopeInput || {}, rateCard);
+  const result = quoteBreakdown(scopeInput, rateCard);
   const id = Math.random().toString(36).slice(2,10);
   const record = { 
     id, 
