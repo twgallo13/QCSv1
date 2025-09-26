@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { QuoteController } from './quote.controller';
-import { RateCardModule } from '../ratecards/ratecard.module';
 import { QuoteService } from './quote.service';
+import { RatecardModule } from '../ratecards/ratecard.module';
 
 @Module({
-    imports: [RateCardModule],
+    imports: [RatecardModule],
     controllers: [QuoteController],
     providers: [QuoteService],
 })
-export class QuoteModule { }
+export class QuoteModule {}

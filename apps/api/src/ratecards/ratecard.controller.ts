@@ -1,12 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
-import { RateCardService, RateCardDefinition } from './ratecard.service';
+import { Controller, Get, Param, Post, Body } from '@nestjs/common';
+import { RatecardService } from './ratecard.service';
 
 @Controller('ratecards')
-export class RateCardController {
-    constructor(private readonly rateCardService: RateCardService) { }
+export class RatecardController {
+    constructor(private readonly svc: RatecardService) {}
 
-    @Get()
-    list(): RateCardDefinition[] {
-        return this.rateCardService.listLatest();
+    @Get() list() { return this.svc.list(); }
+    @Get('latest') latest() { return this.svc.latest(); }
+    @Get(':id') byId(@Param('id') id: string) {
+        const item = this.svc.getById(id);
+        return item ? { item } : { ok:false, error:'not_found' };
     }
+    @Post() create(@Body() body: any) { return this.svc.createDraft(body || {}); }
 }

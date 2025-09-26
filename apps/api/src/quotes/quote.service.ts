@@ -1,130 +1,62 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { RateCardService, RateCardDefinition } from '../ratecards/ratecard.service';
-import { randomUUID } from 'crypto';
+import { Injectable } from '@nestjs/common';
+import type { RateCard } from '../ratecards/ratecard.service';
 
-export interface ScopeInput {
-    monthlyOrders: number;
-    averageOrderValueCents: number;
-    averageUnitsPerOrder: number;
-    shippingSizeMix?: { size: string; pct: number }[]; // optional
-}
-
-export interface QuoteRecord {
-    id: string;
-    rateCardId: string;
-    rateCardVersion: number;
-    scopeInput: ScopeInput;
-    totals: QuoteTotals;
-    createdAt: string;
-}
-
-export interface QuoteTotals {
-    fulfillmentCostCents: number;
-    avgFulfillmentCostPerOrderCents: number;
-}
-
-export interface QuotePreviewResponse {
-    rateCard: { id: string; version: number };
-    scopeInput: ScopeInput;
-    totals: QuoteTotals;
-}
-
-export interface QuoteSavedResponse extends QuotePreviewResponse {
-    id: string;
-    createdAt: string;
-}
-
-export interface PreviewNewerDiffResponse {
-    saved: QuoteSavedResponse;
-    newer: QuotePreviewResponse | null; // null if no newer version
-    diff: {
-        fulfillmentCostCents: number | null;
-        avgFulfillmentCostPerOrderCents: number | null;
-    };
-}
-
-// In-memory store
-const QUOTES: QuoteRecord[] = [];
+type ScopeInput = {
+  monthlyOrders?: number;
+  averageOrderValueCents?: number;
+  averageUnitsPerOrder?: number;
+  shippingSizeMix?: { size: string; pct: number }[];
+};
 
 @Injectable()
 export class QuoteService {
-    constructor(private readonly rateCards: RateCardService) { }
+  private quotes = new Map<string, any>();
 
-    private pickRateCardVersion(rcId: string): RateCardDefinition {
-        const latest = this.rateCards.getLatestById(rcId);
-        if (!latest) throw new NotFoundException('Rate card not found');
-        return latest;
+  private roundHalfUp(n: number) { return n >= 0 ? Math.floor(n + 0.5) : Math.ceil(n - 0.5); }
+  private normalizeMix(mix: { size: string; pct: number }[] = []) {
+    const total = mix.reduce((s,m)=>s+(m?.pct??0),0);
+    if (total>=99.5 && total<=100.5) {
+      const scaled = mix.map(m=>({...m,pct:((m?.pct??0)*100)/total}));
+      const rounded = scaled.map(m=>({...m,pct:Math.round(m.pct)}));
+      const drift = 100 - rounded.reduce((s,m)=>s+m.pct,0);
+      if (drift!==0){ let i=0,max=-Infinity; rounded.forEach((m,idx)=>{if(m.pct>max){max=m.pct;i=idx}}); rounded[i]={...rounded[i],pct:rounded[i].pct+drift}; }
+      return { mix: rounded, mixAutoNormalized: true };
     }
+    return { mix, mixAutoNormalized: false };
+  }
 
-    private calculateTotals(rc: RateCardDefinition, scope: ScopeInput): QuoteTotals {
-        // Pick tier based on monthly orders (highest minMonthlyOrders <= monthlyOrders)
-        const tier = rc.tiers
-            .filter(t => t.minMonthlyOrders <= scope.monthlyOrders)
-            .sort((a, b) => b.minMonthlyOrders - a.minMonthlyOrders)[0];
+  private breakdown(scope: ScopeInput, rc: RateCard) {
+    const monthlyOrders = Number(scope.monthlyOrders ?? 0);
+    const AOVc = Number(scope.averageOrderValueCents ?? 0);
+    const UTP  = Number(scope.averageUnitsPerOrder ?? 1);
+    const { mix } = this.normalizeMix(scope.shippingSizeMix || []);
 
-        const feePerOrder = tier.fulfillmentFeeCents;
-        const fulfillmentCostCents = scope.monthlyOrders * feePerOrder;
-        const avg = feePerOrder; // simplified
-        return {
-            fulfillmentCostCents,
-            avgFulfillmentCostPerOrderCents: avg,
-        };
-    }
+    const fulfillPct   = rc.fulfillmentPercentOfAOV ?? 0.03;
+    const fulfillBase  = rc.fulfillmentBaseCents ?? 100;
+    const fulfillPerAdd= rc.fulfillmentPerAddCents ?? 25;
+    const percentTerm  = this.roundHalfUp(AOVc * fulfillPct);
+    const fulfilled    = Math.max(percentTerm, fulfillBase + fulfillPerAdd * Math.max(0, UTP - 1));
 
-    preview(rateCardId: string, scope: ScopeInput): QuotePreviewResponse {
-        const rc = this.pickRateCardVersion(rateCardId);
-        const totals = this.calculateTotals(rc, scope);
-        return {
-            rateCard: { id: rc.id, version: rc.version },
-            scopeInput: scope,
-            totals,
-        };
-    }
+    const shipRates = rc.shippingRatesBySizeCents ?? { S:120, M:180, L:240 };
+    const sandHPerOrder = (mix||[]).reduce((sum,m)=> sum + this.roundHalfUp((m.pct/100)*(shipRates[m.size] ?? 0)), 0);
 
-    save(rateCardId: string, scope: ScopeInput): QuoteSavedResponse {
-        const preview = this.preview(rateCardId, scope);
-        const record: QuoteRecord = {
-            id: randomUUID(),
-            rateCardId,
-            rateCardVersion: preview.rateCard.version,
-            scopeInput: scope,
-            totals: preview.totals,
-            createdAt: new Date().toISOString(),
-        };
-        QUOTES.push(record);
-        return { id: record.id, createdAt: record.createdAt, ...preview };
-    }
+    const Storage    = (rc.storagePerOrderCents   ?? 100) * monthlyOrders;
+    const Fulfillment= (fulfilled * monthlyOrders) + (sandHPerOrder * monthlyOrders);
+    const Labor      = (rc.laborPerOrderCents     ?? 150) * monthlyOrders;
+    const CS         = (rc.csPerOrderCents        ?? 50)  * monthlyOrders;
+    const Surcharges = (rc.surchargePerOrderCents ?? 20)  * monthlyOrders;
+    const Admin      = (rc.adminPerOrderCents     ?? 10)  * monthlyOrders;
+    const grandTotal = Storage + Fulfillment + Labor + CS + Surcharges + Admin;
 
-    get(id: string): QuoteSavedResponse {
-        const rec = QUOTES.find(q => q.id === id);
-        if (!rec) throw new NotFoundException('Quote not found');
-        return {
-            id: rec.id,
-            createdAt: rec.createdAt,
-            rateCard: { id: rec.rateCardId, version: rec.rateCardVersion },
-            scopeInput: rec.scopeInput,
-            totals: rec.totals,
-        };
-    }
+    return { ok:true, totalsCents:{ Storage, Fulfillment, Labor, CS, Surcharges, Admin, grandTotal }, meta:{engine:'qcsv1-nest-inline'} };
+  }
 
-    previewNewer(id: string): PreviewNewerDiffResponse {
-        const saved = this.get(id);
-        const latest = this.rateCards.getLatestById(saved.rateCard.id);
-        if (!latest) {
-            return { saved, newer: null, diff: { fulfillmentCostCents: null, avgFulfillmentCostPerOrderCents: null } };
-        }
-        if (latest.version === saved.rateCard.version) {
-            return { saved, newer: null, diff: { fulfillmentCostCents: null, avgFulfillmentCostPerOrderCents: null } };
-        }
-        const newerPreview = this.preview(saved.rateCard.id, saved.scopeInput);
-        return {
-            saved,
-            newer: newerPreview,
-            diff: {
-                fulfillmentCostCents: newerPreview.totals.fulfillmentCostCents - saved.totals.fulfillmentCostCents,
-                avgFulfillmentCostPerOrderCents:
-                    newerPreview.totals.avgFulfillmentCostPerOrderCents - saved.totals.avgFulfillmentCostPerOrderCents,
-            },
-        };
-    }
+  preview(rateCard: RateCard, input: ScopeInput) { return this.breakdown(input, rateCard); }
+  create(rateCard: RateCard, input: ScopeInput) {
+    const id = Math.random().toString(36).slice(2,10);
+    const record = { id, rateCardId: rateCard.id, input, ...this.breakdown(input, rateCard), createdAt: new Date().toISOString() };
+    this.quotes.set(id, record);
+    return { id };
+  }
+  get(id: string) { return this.quotes.get(id) ?? null; }
 }
