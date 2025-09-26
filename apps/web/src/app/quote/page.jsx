@@ -14,6 +14,7 @@ export default function QuotePage() {
     rateCardId: "rc-launch"
   });
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
@@ -62,6 +63,37 @@ export default function QuotePage() {
     }
   }
 
+  async function onSaveQuote() {
+    setSaving(true);
+    setError("");
+
+    try {
+      // dollars → cents
+      const averageOrderValueCents = Math.round((form.averageOrderValue || 0) * 100);
+
+      const payload = {
+        rateCardId: form.rateCardId,
+        preview: result // Use the current preview result
+      };
+
+      const res = await fetch(`${API_BASE}/quotes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(`Save failed (${res.status})`);
+      const data = await res.json();
+      
+      // Navigate to the saved quote
+      window.location.href = `/quotes/${data.data.id}`;
+    } catch (err) {
+      setError(err.message || "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div style={{ padding: 24, fontFamily: "Inter, system-ui, sans-serif", maxWidth: 720, margin: "0 auto" }}>
       <h1>QCSv1 – Quote Preview</h1>
@@ -98,9 +130,21 @@ export default function QuotePage() {
           </select>
         </label>
 
-        <button type="submit" disabled={loading} style={{ padding: "8px 14px" }}>
-          {loading ? "Calculating…" : "Preview Quote"}
-        </button>
+        <div style={{ display: "flex", gap: 12 }}>
+          <button type="submit" disabled={loading} style={{ padding: "8px 14px" }}>
+            {loading ? "Calculating…" : "Preview Quote"}
+          </button>
+          {result && (
+            <button 
+              type="button" 
+              onClick={onSaveQuote} 
+              disabled={saving} 
+              style={{ padding: "8px 14px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px" }}
+            >
+              {saving ? "Saving…" : "Save Quote"}
+            </button>
+          )}
+        </div>
       </form>
 
       {error && <p style={{ color: "crimson", marginTop: 12 }}>Error: {error}</p>}
