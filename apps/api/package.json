@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm exec tsx watch src/index.ts",
-    "start": "node dist/index.js",
-    "build": "pnpm exec tsc -p tsconfig.json",
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "build": "echo 'No build needed for JS modules'",
     "test": "jest --config jest.config.ts --passWithNoTests"
   },
   "dependencies": {
