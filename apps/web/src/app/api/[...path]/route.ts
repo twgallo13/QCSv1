@@ -4,13 +4,28 @@ import { NextRequest } from "next/server";
 // In Codespaces or local dev, this will still resolve; override via NEXT_PUBLIC_API_BASE if needed.
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
 
-type Params = { params: { path: string[] } };
+type Context = { params: Promise<{ path: string[] }> };
 
-export async function GET(req: NextRequest, ctx: Params) { return proxy(req, ctx.params); }
-export async function POST(req: NextRequest, ctx: Params) { return proxy(req, ctx.params); }
-export async function PUT(req: NextRequest, ctx: Params) { return proxy(req, ctx.params); }
-export async function PATCH(req: NextRequest, ctx: Params) { return proxy(req, ctx.params); }
-export async function DELETE(req: NextRequest, ctx: Params) { return proxy(req, ctx.params); }
+export async function GET(req: NextRequest, ctx: Context) { 
+  const params = await ctx.params;
+  return proxy(req, params); 
+}
+export async function POST(req: NextRequest, ctx: Context) { 
+  const params = await ctx.params;
+  return proxy(req, params); 
+}
+export async function PUT(req: NextRequest, ctx: Context) { 
+  const params = await ctx.params;
+  return proxy(req, params); 
+}
+export async function PATCH(req: NextRequest, ctx: Context) { 
+  const params = await ctx.params;
+  return proxy(req, params); 
+}
+export async function DELETE(req: NextRequest, ctx: Context) { 
+  const params = await ctx.params;
+  return proxy(req, params); 
+}
 
 async function proxy(req: NextRequest, { path }: { path: string[] }) {
   const dest = `${API_BASE}/${path.join("/")}${req.nextUrl.search || ""}`;
@@ -31,7 +46,7 @@ async function proxy(req: NextRequest, { path }: { path: string[] }) {
     resHeaders.delete("transfer-encoding");
     resHeaders.delete("content-encoding");
     return new Response(r.body, { status: r.status, headers: resHeaders });
-  } catch (e: any) {
-    return new Response(`Proxy error to ${dest}: ${e?.message || "failed"}`, { status: 502 });
+  } catch (e: unknown) {
+    return new Response(`Proxy error to ${dest}: ${(e as Error)?.message || "failed"}`, { status: 502 });
   }
 }

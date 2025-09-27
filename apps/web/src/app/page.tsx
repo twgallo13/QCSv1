@@ -101,3 +101,5 @@ export default function Home() {
     </div>
   );
 }
+
+export function QuoteLink(){return <a href="/quote">Open Quote</a>}

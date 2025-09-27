@@ -15,7 +15,7 @@ export default function QuotePage() {
   ]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
-  const [totals, setTotals] = useState<any>(null);
+  const [totals, setTotals] = useState<Record<string, number> | null>(null);
 
   const updateMix = (i: number, val: number) => {
     const copy = [...mix];
@@ -43,8 +43,8 @@ export default function QuotePage() {
       if (!res.ok) throw new Error(`Preview failed (${res.status})`);
       const data = await res.json();
       setTotals(data.totalsCents || data);
-    } catch (e: any) {
-      setErr(e.message || "Failed");
+    } catch (e: unknown) {
+      setErr((e as Error).message || "Failed");
     } finally {
       setLoading(false);
     }
