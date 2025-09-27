@@ -24,6 +24,7 @@ export default function QuotePage() {
     { size: "L", pct: 10 },
   ]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
   const [totals, setTotals] = useState<Totals>(null);
 
