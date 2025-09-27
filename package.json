@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "./dev.sh",
+    "dev:follow": "./dev.sh --follow",
     "test": "echo \"Use pnpm test:api\"",
     "test:api": "pnpm --filter ./apps/api test",
     "dev:all": "./dev.sh"
