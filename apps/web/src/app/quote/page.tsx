@@ -82,6 +82,7 @@ export default function QuotePage() {
 
   async function onSave() {
     try {
+      setSaving(true);
       const res = await fetch(`/api/quotes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -89,9 +90,11 @@ export default function QuotePage() {
       });
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
       const data = await res.json(); // expect { id, ... }
-      if (data?.id) router.push(`/quotes/${data.id}`);
+      if (data?.id) router.push(`/quote/${data.id}`);
     } catch (e: any) {
       setErr(e.message || "Save failed");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -158,8 +161,21 @@ export default function QuotePage() {
             </tbody>
           </table>
           <div style={{ padding: "12px", background: "#f8f9fa", borderTop: "1px solid #eee", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <button onClick={onSave} style={{ padding: "8px 16px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}>
-              Save Quote
+            <button 
+              onClick={onSave} 
+              disabled={saving}
+              aria-busy={saving}
+              style={{ 
+                padding: "8px 16px", 
+                backgroundColor: saving ? "#6c757d" : "#007bff", 
+                color: "white", 
+                border: "none", 
+                borderRadius: "4px", 
+                cursor: saving ? "not-allowed" : "pointer",
+                opacity: saving ? 0.7 : 1
+              }}
+            >
+              {saving ? 'Saving…' : 'Save Quote'}
             </button>
             <a href="/quotes" style={{ fontSize: "14px", color: "#666" }}>View all quotes</a>
           </div>
