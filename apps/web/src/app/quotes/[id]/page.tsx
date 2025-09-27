@@ -13,7 +13,7 @@ export default function QuoteDetail(){
 
   useEffect(()=>{(async()=>{
     try{
-      const r = await fetch(`${API_BASE}/quotes/${id}`);
+      const r = await fetch(`/api/quotes/${id}`);
       if(!r.ok) throw new Error(`Fetch failed (${r.status})`);
       setData(await r.json());
     }catch(e:any){ setErr(e.message||"Failed"); }

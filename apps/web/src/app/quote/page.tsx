@@ -61,7 +61,7 @@ export default function QuotePage() {
     if (formErrors.length) return; // block submit if invalid
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/quotes/preview`, {
+      const res = await fetch(`/api/quotes/preview`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
@@ -81,7 +81,7 @@ export default function QuotePage() {
 
   async function onSave() {
     try {
-      const res = await fetch(`${API_BASE}/quotes`, {
+      const res = await fetch(`/api/quotes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),

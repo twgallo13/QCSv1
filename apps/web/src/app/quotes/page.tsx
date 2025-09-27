@@ -9,7 +9,7 @@ export default function QuotesList(){
 
   useEffect(()=>{(async()=>{
     try{
-      const r = await fetch(`${API_BASE}/quotes`);
+      const r = await fetch(`/api/quotes`);
       if(!r.ok) throw new Error(`Fetch failed (${r.status})`);
       const data = await r.json();
       const list = Array.isArray(data) ? data : (data?.items || []);
