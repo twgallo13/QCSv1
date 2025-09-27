@@ -16,3 +16,6 @@ secrets/
 *.pem
 *.p12
 *.pfx
+# web (generated)
+apps/web/.next/
+apps/web/next-env.d.ts
