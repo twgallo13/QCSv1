@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "./dev.sh",
     "test": "echo \"Use pnpm test:api\"",
-  "test:api": "pnpm --filter ./apps/api test",
+    "test:api": "pnpm --filter ./apps/api test",
     "dev:all": "./dev.sh"
   },
   "keywords": [],
