@@ -2,7 +2,7 @@
   "name": "qcsv1",
   "private": true,
   "scripts": {
-    "test:api": "pnpm --filter ./apps/api jest --config apps/api/jest.config.ts --passWithNoTests",
+    "test:api": "pnpm --filter ./apps/api test",
     "dev:api": "pnpm --filter ./apps/api dev",
     "dev:web": "pnpm --filter ./apps/web dev",
     "dev": "concurrently -n API,WEB \"pnpm dev:api\" \"pnpm dev:web\"",
