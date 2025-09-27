@@ -2,6 +2,7 @@
   "name": "qcsv1",
   "private": true,
   "scripts": {
+    "test": "echo \"Use pnpm test:api\"",
     "test:api": "pnpm --filter ./apps/api test",
     "dev:api": "pnpm --filter ./apps/api dev",
     "dev:web": "pnpm --filter ./apps/web dev",
