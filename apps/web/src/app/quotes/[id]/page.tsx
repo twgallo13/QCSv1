@@ -26,6 +26,15 @@ export default function QuoteDetail(){
   return (
     <div style={{padding:24, maxWidth:900, margin:"0 auto"}}>
       <h1>Quote #{id}</h1>
+      <div style={{display:'flex', gap:8, margin:'8px 0'}}>
+        <button onClick={() => navigator.clipboard.writeText(window.location.href)}>Copy Link</button>
+        <a href={`/quotes/${id}/print`} target="_blank" rel="noopener noreferrer">
+          <button type="button">Print View</button>
+        </a>
+        <a href={`mailto:?subject=Quote%20%23${id}&body=${encodeURIComponent(window.location.href)}`}>
+          <button type="button">Email</button>
+        </a>
+      </div>
       <p>Rate Card: {data?.data?.rateCardId || data?.rateCardId || "—"}</p>
       <h3>Totals</h3>
       <table style={{width:"100%", borderCollapse:"collapse"}}>
