@@ -1,68 +1,37 @@
-import { validate, validateSync } from 'class-validator';
-import { plainToClass, Transform } from 'class-transformer';
+import { IsInt, IsOptional, IsString, IsArray, ValidateNested, Min, Max } from 'class-validator';
+import { Type, plainToInstance } from 'class-transformer';
 
 class MixDto {
-  size;
-  pct;
-
-  constructor(size, pct) {
-    this.size = size;
-    this.pct = pct;
-  }
+  @IsString() size;
+  @IsInt() @Min(0) @Max(100) pct;
 }
 
-class ScopeInputDto {
-  monthlyOrders;
-  averageOrderValueCents;
-  averageUnitsPerOrder = 1;
-  shippingSizeMix = [];
+export class ScopeInputDto {
+  @IsInt() @Min(0) monthlyOrders;
+  @IsInt() @Min(0) averageOrderValueCents;
+  @IsInt() @Min(1) @IsOptional() averageUnitsPerOrder;
 
-  constructor(data) {
-    this.monthlyOrders = data.monthlyOrders;
-    this.averageOrderValueCents = data.averageOrderValueCents;
-    this.averageUnitsPerOrder = data.averageUnitsPerOrder || 1;
-    this.shippingSizeMix = data.shippingSizeMix || [];
-  }
+  @IsArray() @ValidateNested({ each: true }) @Type(() => MixDto) @IsOptional()
+  shippingSizeMix;
 }
 
-class PreviewDto {
-  rateCardId = 'rc-launch';
+export class PreviewDto {
+  @IsString() @IsOptional() rateCardId;
+
+  @ValidateNested() @Type(() => ScopeInputDto)
   scopeInput;
-
-  constructor(data) {
-    this.rateCardId = data.rateCardId || 'rc-launch';
-    this.scopeInput = new ScopeInputDto(data.scopeInput || {});
-  }
 }
 
-// Validation middleware for Express
-export function validateRequest(DtoClass) {
+export function validateRequest(dtoClass) {
   return async (req, res, next) => {
-    try {
-      const dto = new DtoClass(req.body);
-      const errors = await validate(dto);
-      
-      if (errors.length > 0) {
-        const errorMessages = errors.map(error => 
-          Object.values(error.constraints || {}).join(', ')
-        );
-        return res.status(400).json({
-          ok: false,
-          error: 'VALIDATION_ERROR',
-          details: errorMessages
-        });
-      }
-      
-      req.validatedBody = dto;
-      next();
-    } catch (err) {
-      return res.status(400).json({
-        ok: false,
-        error: 'VALIDATION_ERROR',
-        details: [err.message]
-      });
+    const dto = plainToInstance(dtoClass, req.body);
+    const errors = await import('class-validator').then(({ validate }) => validate(dto, { whitelist: true, forbidNonWhitelisted: true }));
+
+    if (errors.length > 0) {
+      const errorMessages = errors.map(error => Object.values(error.constraints)).flat();
+      return res.status(400).json({ ok: false, error: "VALIDATION_ERROR", details: errorMessages });
     }
+    req.validatedBody = dto;
+    next();
   };
 }
-
-export { PreviewDto, ScopeInputDto, MixDto };
