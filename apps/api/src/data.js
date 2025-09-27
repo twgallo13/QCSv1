@@ -18,5 +18,3 @@ export const rateCards = [
     shippingRatesBySizeCents:{S:100,M:160,L:220}
   }
 ];
-
-export const quotes = new Map();

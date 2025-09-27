@@ -1,8 +1,9 @@
 import express from "express";
 import cors from "cors";
-import { rateCards, quotes } from "./data.js";
+import { rateCards } from "./data.js";
 import { quoteBreakdown } from "../../../packages/calc/src/index.js";
 import { validateRequest, PreviewDto } from "./dto.js";
+import { MemoryQuoteRepository } from "./quotes/quote.repo.memory.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;  // keep 3000 since your Codespace shows port 3000 running
@@ -14,6 +15,15 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Initialize repository based on environment
+let quoteRepo;
+if (process.env.USE_FIREBASE === 'true') {
+  const { FirestoreQuoteRepository } = await import('./quotes/quote.repo.firestore.js');
+  quoteRepo = new FirestoreQuoteRepository();
+} else {
+  quoteRepo = new MemoryQuoteRepository();
+}
 
 // --- Endpoints ---
 // Health (kept for sanity)
@@ -46,46 +56,65 @@ app.post("/quotes/preview", validateRequest(PreviewDto), (req, res) => {
 });
 
 // Save version-locked quote
-app.post("/quotes", validateRequest(PreviewDto), (req, res) => {
-  const { rateCardId, scopeInput } = req.validatedBody;
-  const rateCard = rateCards.find(r => r.id === rateCardId) || rateCards[0];
-  const result = quoteBreakdown(scopeInput, rateCard);
-  const id = Math.random().toString(36).slice(2,10);
-  const record = { 
-    id, 
-    rateCardId: rateCard.id, 
-    rateCardVersion: rateCard.version,
-    input: scopeInput, 
-    ...result, 
-    createdAt: new Date().toISOString() 
-  };
-  quotes.set(id, record);
-  return res.json({ id });
+app.post("/quotes", validateRequest(PreviewDto), async (req, res) => {
+  try {
+    const { rateCardId, scopeInput } = req.validatedBody;
+    const rateCard = rateCards.find(r => r.id === rateCardId) || rateCards[0];
+    const result = quoteBreakdown(scopeInput, rateCard);
+    
+    const saved = await quoteRepo.save({
+      rateCardId: rateCard.id,
+      scopeInput,
+      totalsCents: result.totalsCents
+    });
+    
+    return res.json({ id: saved.id });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// List all quotes
+app.get("/quotes", async (req, res) => {
+  try {
+    const quotes = await quoteRepo.list();
+    res.json(quotes);
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
 });
 
 // Read saved quote
-app.get("/quotes/:id", (req, res) => {
-  const q = quotes.get(req.params.id);
-  if (!q) return res.status(404).json({ ok: false, error: "NOT_FOUND" });
-  res.json({ ok: true, data: q });
+app.get("/quotes/:id", async (req, res) => {
+  try {
+    const q = await quoteRepo.get(req.params.id);
+    if (!q) return res.status(404).json({ ok: false, error: "NOT_FOUND" });
+    res.json({ ok: true, data: q });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
 });
 
 // Preview with newer rate card
-app.get("/quotes/:id/preview-newer", (req, res) => {
-  const saved = quotes.get(req.params.id);
-  if (!saved) return res.status(404).json({ ok: false, error: "NOT_FOUND" });
-  
-  const latest = rateCards[rateCards.length - 1];
-  const newer = quoteBreakdown(saved.input || {}, latest);
-  
-  res.json({
-    ok: true,
-    savedQuoteId: req.params.id,
-    previousRateCardId: saved.rateCardId,
-    latestRateCardId: latest.id,
-    totalsCents: newer.totalsCents,
-    meta: { engine: "qcsv1-calc", note: "Preview with newer rate" }
-  });
+app.get("/quotes/:id/preview-newer", async (req, res) => {
+  try {
+    const saved = await quoteRepo.get(req.params.id);
+    if (!saved) return res.status(404).json({ ok: false, error: "NOT_FOUND" });
+    
+    const latest = rateCards[rateCards.length - 1];
+    const newer = quoteBreakdown(saved.scopeInput || {}, latest);
+    
+    res.json({
+      ok: true,
+      savedQuoteId: req.params.id,
+      previousRateCardId: saved.rateCardId,
+      latestRateCardId: latest.id,
+      totalsCents: newer.totalsCents,
+      meta: { engine: "qcsv1-calc", note: "Preview with newer rate" }
+    });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
