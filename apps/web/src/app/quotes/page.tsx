@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { toMajor } from "qcsv1-schema";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
 

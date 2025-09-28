@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { toMajor } from "qcsv1-schema";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
-
-function dollars(c:number){ return (c/100).toLocaleString(undefined,{style:"currency",currency:"USD"}); }
 
 export default function QuoteDetail(){
   const { id } = useParams() as { id: string };
@@ -42,7 +41,7 @@ export default function QuoteDetail(){
           {Object.entries(totals).map(([k,v])=>(
             <tr key={k}>
               <td style={{borderBottom:"1px solid #eee", padding:"8px 10px"}}>{k}</td>
-              <td style={{borderBottom:"1px solid #eee", padding:"8px 10px", textAlign:"right"}}>{dollars(v as number)}</td>
+               <td style={{borderBottom:"1px solid #eee", padding:"8px 10px", textAlign:"right"}}>{toMajor(v as number)}</td>
             </tr>
           ))}
         </tbody>

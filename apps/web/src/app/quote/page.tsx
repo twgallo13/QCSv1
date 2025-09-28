@@ -1,22 +1,17 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toCents, toMajor } from "qcsv1-schema";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
 
 type Mix = { size: "S" | "M" | "L"; pct: number };
 type Totals = Record<string, number> | null;
 
-// format cents -> $X,XXX.XX
-function dollars(cents: number | undefined) {
-  if (typeof cents !== "number" || Number.isNaN(cents)) return "—";
-  return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" });
-}
-
 export default function QuotePage() {
   const router = useRouter();
   const [monthlyOrders, setMonthlyOrders] = useState<number>(500);
-  const [aov, setAov] = useState<number>(10000);
+  const [aovDollars, setAovDollars] = useState<number>(100.00); // UI shows dollars
   const [units, setUnits] = useState<number>(1);
   const [mix, setMix] = useState<Mix[]>([
     { size: "S", pct: 60 },
@@ -33,11 +28,11 @@ export default function QuotePage() {
   const formErrors = useMemo(() => {
     const issues: string[] = [];
     if (monthlyOrders < 0) issues.push("Monthly orders must be 0 or more.");
-    if (aov < 0) issues.push("AOV (cents) must be 0 or more.");
+    if (aovDollars < 0) issues.push("AOV must be 0 or more.");
     if (units < 1) issues.push("Units per order must be at least 1.");
     if (!isMixValid) issues.push("Shipping mix must total 100%.");
     return issues;
-  }, [monthlyOrders, aov, units, isMixValid]);
+  }, [monthlyOrders, aovDollars, units, isMixValid]);
 
   const updateMix = (i: number, val: number) => {
     const v = Number.isFinite(val) ? Math.max(0, Math.min(100, val)) : 0;
@@ -50,7 +45,7 @@ export default function QuotePage() {
     rateCardId: "rc-launch",
     scopeInput: {
       monthlyOrders: Number(monthlyOrders),
-      averageOrderValueCents: Number(aov),
+      averageOrderValueCents: toCents(aovDollars),
       averageUnitsPerOrder: Number(units),
       shippingSizeMix: mix,
     },
@@ -107,8 +102,8 @@ export default function QuotePage() {
         <label>Monthly Orders
           <input type="number" value={monthlyOrders} onChange={e=>setMonthlyOrders(+e.target.value)} min={0} />
         </label>
-        <label>AOV (cents)
-          <input type="number" value={aov} onChange={e=>setAov(+e.target.value)} min={0} />
+        <label>AOV ($)
+          <input type="number" value={aovDollars} onChange={e=>setAovDollars(+e.target.value)} min={0} step="0.01" />
         </label>
         <label>Units / Order
           <input type="number" value={units} onChange={e=>setUnits(+e.target.value)} min={1} />
@@ -154,7 +149,7 @@ export default function QuotePage() {
                   {k}
                 </td>
                 <td style={{ borderBottom:"1px solid #eee", padding:"10px 12px", textAlign:"right", fontWeight: k==='grandTotal' ? 700 : 400 }}>
-                  {dollars(v as number)}
+                  {toMajor(v as number)}
                 </td>
               </tr>
             ))}
