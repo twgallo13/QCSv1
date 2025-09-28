@@ -52,7 +52,11 @@ app.post("/quotes/preview", validateRequest(PreviewDto), (req, res) => {
   const { rateCardId, scopeInput } = req.validatedBody;
   const rateCard = rateCards.find(r => r.id === rateCardId) || rateCards[0];
   const result = quoteBreakdown(scopeInput, rateCard);
-  return res.json(result);
+  const normalizedScope = {
+    ...scopeInput,
+    averageOrderValueCents: Number(scopeInput.averageOrderValueCents || 0)
+  };
+  return res.json({ ...result, scopeInput: normalizedScope });
 });
 
 // Save version-locked quote
@@ -61,14 +65,18 @@ app.post("/quotes", validateRequest(PreviewDto), async (req, res) => {
     const { rateCardId, scopeInput } = req.validatedBody;
     const rateCard = rateCards.find(r => r.id === rateCardId) || rateCards[0];
     const result = quoteBreakdown(scopeInput, rateCard);
-    
+    const normalizedScope = {
+      ...scopeInput,
+      averageOrderValueCents: Number(scopeInput.averageOrderValueCents || 0)
+    };
+
     const saved = await quoteRepo.save({
       rateCardId: rateCard.id,
-      scopeInput,
+      scopeInput: normalizedScope,
       totalsCents: result.totalsCents
     });
     
-    return res.json({ id: saved.id });
+    return res.json({ ok: true, id: saved.id, totalsCents: saved.totalsCents, scopeInput: normalizedScope });
   } catch (error) {
     return res.status(500).json({ ok: false, error: error.message });
   }

@@ -1,6 +1,8 @@
 // Lightweight manual validation replacing class-validator decorators for plain JS runtime.
 // We keep exported symbol names (PreviewDto) for minimal changes in index.js, though they are simple factory functions now.
 
+import { ensureCentsField } from '../../../packages/schema/src/money.ts';
+
 export function validatePreviewPayload(body) {
   const errors = [];
   const isInt = (v) => Number.isInteger(v);
@@ -14,6 +16,11 @@ export function validatePreviewPayload(body) {
     errors.push('scopeInput is required');
   } else {
     const s = body.scopeInput;
+
+    // Normalize averageOrderValueMajor -> averageOrderValueCents (if provided)
+    ensureCentsField(s, 'averageOrderValue', 'averageOrderValueCents');
+    ensureCentsField(s, 'averageOrderValueMajor', 'averageOrderValueCents');
+
     if (!nonNeg(s.monthlyOrders)) errors.push('scopeInput.monthlyOrders must be a non-negative integer');
     if (!nonNeg(s.averageOrderValueCents)) errors.push('scopeInput.averageOrderValueCents must be a non-negative integer');
     if (s.averageUnitsPerOrder != null && (!isInt(s.averageUnitsPerOrder) || s.averageUnitsPerOrder < 1)) {
