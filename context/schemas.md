@@ -2,15 +2,10 @@ QCSv1 — Master Schemas
 ======================
 
 ## Monetary Units
-**Canonical unit: cents (integers); UI formats to major units.**
-
-All monetary values are stored and calculated as integers representing cents to avoid floating-point precision issues. The UI displays these values as formatted currency strings (e.g., "$1,234.56").
-
-- **Storage:** All money fields use `...Cents` suffix (e.g., `totalCents`, `feeCents`)
-- **API:** Accepts and returns cents as integers
-- **UI:** Converts to/from major units for display using `toCents()` and `toMajor()` utilities
-- **Calculations:** All arithmetic performed on cents (integers)
-- **Rounding:** Round to nearest cent using `Math.round()` for consistency
+- Canonical storage and calculation unit is cents (integers).
+- UI is responsible for formatting to major units (e.g., "$12.34").
+- Inputs received in major units must be converted to cents at the boundary.
+- All schema fields representing money should be named ...Cents: number.
 
 ## 6.0 Global Conventions
 - **ID format:** Firestore auto-ID (string); stable foreign reference via explicit code for catalog-like entities (e.g., `service.code`).  
