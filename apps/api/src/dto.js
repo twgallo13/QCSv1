@@ -1,7 +1,7 @@
 // Lightweight manual validation replacing class-validator decorators for plain JS runtime.
 // We keep exported symbol names (PreviewDto) for minimal changes in index.js, though they are simple factory functions now.
 
-import { ensureCentsField } from '../../../packages/schema/src/money.ts';
+import { ensureCentsField } from '../../../packages/schema/src/money.js';
 
 export function validatePreviewPayload(body) {
   const errors = [];
