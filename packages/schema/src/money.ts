@@ -9,11 +9,15 @@ export function toCents(major: number | string): number {
   return Math.round(n * 100 + (n >= 0 ? 1e-8 : -1e-8));
 }
 
-export function toMajor(cents: number | string): number {
-  if (cents == null || cents === '') return 0;
+export function toMajor(cents: number | string, locale: string = 'en-US', currency: string = 'USD'): string {
+  if (cents == null || cents === '') return (0).toFixed(2);
   const n = typeof cents === 'string' ? Number(cents) : cents;
-  if (!Number.isFinite(n)) return 0;
-  return n / 100;
+  if (!Number.isFinite(n)) return (0).toFixed(2);
+  const major = n / 100;
+  // Return plain fixed 2 decimal string if currency falsy
+  if (!currency) return major.toFixed(2);
+  // Use Intl for formatting, but we only want numeric w/ 2 decimals (no symbol) to keep stable snapshot
+  return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(major);
 }
 
 export function isIntCents(v: any): v is number {

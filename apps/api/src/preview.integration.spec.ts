@@ -15,7 +15,8 @@ function buildApp() {
     const { rateCardId, scopeInput } = req.validatedBody;
     const rateCard = rateCards.find(r => r.id === rateCardId) || rateCards[0];
     const result = quoteBreakdown(scopeInput, rateCard);
-    return res.json(result);
+    const normalizedScope = { ...scopeInput, averageOrderValueCents: Number(scopeInput.averageOrderValueCents || 0) };
+    return res.json({ ...result, scopeInput: normalizedScope });
   });
   return app;
 }
@@ -44,6 +45,7 @@ describe('POST /quotes/preview money normalization', () => {
 
     expect(res.body).toBeDefined();
     expect(res.body.ok).toBe(true);
+    expect(res.body.scopeInput.averageOrderValueCents).toBe(12345);
     expect(res.body.totalsCents.grandTotal).toBeGreaterThan(0);
   });
 });
