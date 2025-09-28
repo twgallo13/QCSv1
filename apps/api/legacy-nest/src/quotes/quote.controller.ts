@@ -11,8 +11,8 @@ export class QuoteController {
   }
 
   @Get(':id')
-  get(@Param('id') id: string) { 
-    return this.quoteService.getQuote(id); 
+  get(@Param('id') id: string) {
+    return this.quoteService.getQuote(id);
   }
 
   @Post()

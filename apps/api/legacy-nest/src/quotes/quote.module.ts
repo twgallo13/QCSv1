@@ -19,7 +19,7 @@ const repoProvider: Provider = {
   controllers: [QuoteController],
   providers: [
     QuoteService,
-    { provide: IQuoteRepository as any, useExisting: 'QUOTE_REPO' as any },
+    { provide: 'QUOTE_REPO', useExisting: 'QUOTE_REPO' },
     repoProvider,
   ],
   exports: [QuoteService],
