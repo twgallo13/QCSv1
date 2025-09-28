@@ -1,8 +1,16 @@
 {
   "compilerOptions": {
-    "noEmit": true
+    "target": "ES2020",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "strict": false,
+    "noEmit": true,
+    "types": ["node", "jest"],
+    "skipLibCheck": true
   },
   "files": ["types/empty.d.ts"],
-  "include": [],
-  "exclude": []
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
