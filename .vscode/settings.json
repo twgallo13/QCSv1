@@ -1,0 +1,5 @@
+{
+  // Keep the API treated as a JS project; tsserver won't look for a tsconfig here
+  "typescript.disableAutomaticTypeAcquisition": false,
+  "typescript.tsserver.maxTsServerMemory": 3072
+}
