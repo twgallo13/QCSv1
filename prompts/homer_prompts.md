@@ -72,6 +72,7 @@ indent_size = 2
     
     # Completed
     ```
+
 1. **Dev Runner & Ports (Codespaces-friendly)**
 
 - Ensure `dev.sh` at repo root:
@@ -84,7 +85,6 @@ indent_size = 2
 1. **API Health & Smoke (scripts)**
 
 - Create `scripts/smoke_api.sh`:
-
 
     ```bash
     #!/usr/bin/env bash
@@ -116,8 +116,8 @@ indent_size = 2
   - `logs/session_2025-09-26.md`
 
 1. **CI (lightweight)**
-- Add `.github/workflows/ci.yml` with:
 
+- Add `.github/workflows/ci.yml` with:
 
     ```yaml
     name: ci
@@ -138,6 +138,7 @@ indent_size = 2
 1. **Commit & Sync**
 
 - Stage all, commit with a clear message, and push `main`:
+
 ## Completed
 
-*Note: If you want, I can also generate the matching `cursor_prompts.md` and `smithers_prompts.md` seed files next, plus the ready-to-paste contents for `context/lisa_boot.md` and the three backfilled log files.*
+*Note: If you want, I can also generate the matchig `cursor_prompts.md` and `smithers_prompts.md` seed files next, plus the ready-to-paste contents for `context/lisa_boot.md` and the three backfilled log files.*
