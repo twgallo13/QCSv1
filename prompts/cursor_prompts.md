@@ -61,4 +61,6 @@
 - Summarize what changed and any open content questions.
 - Deliverable: `cursor_handoff.md`.
 
+"Do not start work that depends on API cents normalization until feat/api-cents-boundary merges. Base your work on main."
+
 ## Completed

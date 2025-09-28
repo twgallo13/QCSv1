@@ -40,4 +40,6 @@
 - At end of sync, write a short `smithers_handoff.md` in `/outputs/smithers/` summarizing what was updated and any gaps.  
 - Deliverable: `outputs/smithers/smithers_handoff.md`.
 
+"Do not start work that depends on API cents normalization until feat/api-cents-boundary merges. Base your work on main."
+
 ## Completed
