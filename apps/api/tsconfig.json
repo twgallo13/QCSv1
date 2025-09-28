@@ -1,6 +1,8 @@
 {
-  "compilerOptions": {},
-  "files": [],
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "files": ["types/empty.d.ts"],
   "include": [],
-  "exclude": ["**/*"]
+  "exclude": []
 }
