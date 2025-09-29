@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- CONTRIBUTING.md placeholder with PR template reference ([#9](https://github.com/twgallo13/QCSv1/pull/9))
+- CONTRIBUTING.md with PR template reference, docs-only lane, and branch hygiene.
 
 ### Changed
 - Enhanced Lisa process guardrails with docs-only fast lane and branch management rules
