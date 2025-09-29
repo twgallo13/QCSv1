@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+
+### Changed
+
+### Fixed
 
 ## [QCSv1.rel.v1.24.1] - 2025-09-29
 

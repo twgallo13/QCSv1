@@ -1,6 +1,6 @@
 # Active / Recent Branches
 
-*(None — board clean as of 2025-09-29.)*
+> board clean — 2025-09-29
 
 ## Closed (Superseded)
 | Branch | Owner | Purpose | PR | Status | Created |
