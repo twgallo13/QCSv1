@@ -1,9 +1,6 @@
 # Active / Recent Branches
 
-| Branch | PR | Title | Status | Notes |
-|--------|----|-------|--------|-------|
-| feat/api-cents-boundary | #1 | feat(api): normalize money to cents at request boundary + tests | Merged | Merged via PR #1 on 2025-09-28 |
-| fix/docs-and-port-check | #8 | Finalize dev ports (API→4000, Web→3000) | Merged | Owner: Carl; merged 2025-09-28 |
+*(None — board clean as of 2025-09-29.)*
 
 ## Closed (Superseded)
 | Branch | Owner | Purpose | PR | Status | Created |

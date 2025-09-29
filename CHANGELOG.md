@@ -7,17 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [QCSv1.rel.v1.24.1] - 2025-09-29
+
 ### Added
-- CONTRIBUTING.md with PR template reference, docs-only lane, and branch hygiene.
+- CONTRIBUTING.md with PR template reference, docs-only fast lane, and branch hygiene ([#9](https://github.com/twgallo13/QCSv1/pull/9)).
 
 ### Changed
-- Enhanced Lisa process guardrails with docs-only fast lane and branch management rules
-- Added comprehensive PR template with process hygiene checklist
-- Reconciled `context/branches.md` table alignment and PR statuses (mark `feat/api-cents-boundary` merged; correct `fix/docs-and-port-check` row)
+- Enhanced Lisa process guardrails; added comprehensive PR template with process hygiene checklist.
+- Reconciled `context/branches.md` statuses (mark `feat/api-cents-boundary` merged; correct `fix/docs-and-port-check` row).
 
 ### Fixed
-- API default port changed from 3000 to 4000 to prevent conflicts with web dev server
-- Web proxy configuration updated to point to API on port 4000
+- API default port changed from 3000 → 4000; Web proxy updated to target API :4000.
 
 ## [QCSv1.rel.v1.24.0] - 2025-09-28
 
