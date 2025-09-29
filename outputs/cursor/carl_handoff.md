@@ -24,3 +24,4 @@ Applied patches to register fix/api-port branch and create session log entry.
 - Closed out PR #6 and cleared blockers; API now defaults to port 4000 with no remaining blockers.
 - Finalized port work bookkeeping: updated branches.md to show fix/docs-and-port-check as merged (PR #8) and recorded Homer's verification of API:4000/Web:3001.
 - Added PR template and strengthened Lisa's process guardrails with docs-only fast lane and branch management rules.
+- Enhanced Lisa boot to be version-aware with authoritative boot sequence and boot_checklist.md for consistent startup.
