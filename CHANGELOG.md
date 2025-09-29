@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed
+- Lisa now **detects GitHub connectivity issues**, announces them, and supports a **local-only fallback** (no false negatives); every response ends with *What to do next / What to verify / What to expect*.
 
 ## [QCSv1.rel.v1.24.1] - 2025-09-29
 

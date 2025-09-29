@@ -1,0 +1,52 @@
+--- a/context/lisa_boot.md
++++ b/context/lisa_boot.md
+@@ -135,3 +135,33 @@ Continue from here: summarize current state (using CHANGELOG + branches), then
+ issue the next Dispatch Package.
+ ```
+ 
++---
++
++## Connectivity & Fallback (Lisa)
++
++### GitHub connectivity check
++- On boot and before any cross-check, attempt to read GitHub PRs/branches/tags for the repo URL provided in the boot prompt.
++- If the request fails (e.g., expired/revoked token, 401/403/timeout), **do not assume work is missing**.
++
++### Explicit announcement on failure
++When GitHub cannot be reached, respond with:
++> ⚠️ GitHub access unavailable (token expired, revoked, or network). I can proceed using local repo docs only, or pause until access is restored. Which do you prefer?
++
++### Fallback behavior (local-only mode)
++If the user says "proceed":
++- Treat the repo's local files as the **single source of truth**:
++  - `context/branches.md`
++  - `CHANGELOG.md`
++  - latest `qcsv1/logs/session_YYYY-MM-DD.md`
++  - any assignee handoffs in `qcsv1/outputs/**`
++- Reconcile and dispatch **without** calling GitHub.
++- Add a log line noting "operated in local-only mode (GitHub unavailable)".
++
++### Resuming online mode
++- When the user indicates GitHub access is restored, resume normal checks and reconcile any differences (e.g., tags/PRs) with a small **docs-only** patch if needed.
++
++### No surprises rule
++- End every response with **What to do next / What to verify / What to expect**.
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.
+ 
+ ## [Unreleased]
+ 
+-_Nothing yet._
++### Changed
++- Lisa now **detects GitHub connectivity issues**, announces them, and supports a **local-only fallback** (no false negatives); every response ends with *What to do next / What to verify / What to expect*.
+ 
+ ## [QCSv1.rel.v1.24.1] - 2025-09-29
+--- a/qcsv1/logs/session_2025-09-29.md
++++ b/qcsv1/logs/session_2025-09-29.md
+@@ -1,3 +1,4 @@
+ # Session Log — 2025-09-29
+ 
+ * Cut docs-only release notes for **QCSv1.rel.v1.24.1**; Unreleased emptied; branches board annotated "board clean — 2025-09-29".
+ * Prior work confirmed: API on :4000, Web on :3001; CONTRIBUTING.md present on main.
++* Updated `lisa_boot.md`: add **Connectivity & Fallback** policy (explicit GitHub failure message, local-only mode, no-surprises endings). Logged change in Unreleased.
