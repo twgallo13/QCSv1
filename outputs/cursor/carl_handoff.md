@@ -22,3 +22,4 @@ Applied patches to register fix/api-port branch and create session log entry.
 ## Latest Update
 - Updated branches.md to mark fix/api-default-4000 as merged (PR #6) and added session log entry for Homer smoke test follow-up.
 - Closed out PR #6 and cleared blockers; API now defaults to port 4000 with no remaining blockers.
+- Finalized port work bookkeeping: updated branches.md to show fix/docs-and-port-check as merged (PR #8) and recorded Homer's verification of API:4000/Web:3001.
