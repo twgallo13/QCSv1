@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Enhanced Lisa process guardrails with docs-only fast lane and branch management rules
 - Added comprehensive PR template with process hygiene checklist
+- Reconciled `context/branches.md` table alignment and PR statuses (mark `feat/api-cents-boundary` merged; correct `fix/docs-and-port-check` row)
 
 ### Fixed
 - API default port changed from 3000 to 4000 to prevent conflicts with web dev server
