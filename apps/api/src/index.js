@@ -6,7 +6,7 @@ import { validateRequest, PreviewDto } from "./dto.js";
 import { MemoryQuoteRepository } from "./quotes/quote.repo.memory.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;  // keep 3000 since your Codespace shows port 3000 running
+const PORT = process.env.PORT || 4000;
 
 // Enable CORS
 app.use(cors({
